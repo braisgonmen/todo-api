@@ -1,8 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -40,8 +40,8 @@ func Load() (*Config, error) {
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnvInt("DB_PORT", 5432),
 			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("POSTGRES_PASSWORD", "postgres"),
-			DBName:   getEnv("POSTGRES_DB", "myapp"),
+			Password: getEnv("DB_PASSWORD", "postgres"),
+			DBName:   getEnv("DB_NAME", "myapp"),
 		},
 	}, nil // devuelve nil en error
 }
@@ -57,9 +57,9 @@ func getEnv(key, fallback string) string {
 func getEnvInt(key string, fallback int) int {
 
 	if value := os.Getenv(key); value != "" {
-		var result int
-		fmt.Scanf(value, "%d", &result)
-		return result
+		if intVal, err := strconv.Atoi(value); err == nil {
+			return intVal
+		}
 	}
 	return fallback
 }

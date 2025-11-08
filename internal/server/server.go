@@ -10,20 +10,20 @@ import (
 	"syscall"
 	"time"
 	"todo-api/internal/config"
-	"todo-api/internal/database"
+	"todo-api/internal/repository/postgres"
 	"todo-api/internal/router"
 )
 
 // server que encapsula el servidor HTTP y dependencias
 type Server struct {
 	httpServer *http.Server
-	db         *database.DB
+	db         *postgres.DB
 	config     *config.Config
 }
 
 func New(cfg *config.Config) (*Server, error) {
 
-	db, err := database.NewConnection(cfg.Database)
+	db, err := postgres.NewConnection(cfg.Database)
 
 	if err != nil {
 		return nil, err

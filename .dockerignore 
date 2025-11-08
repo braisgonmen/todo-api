@@ -1,0 +1,41 @@
+# Dependencias y caché
+vendor/
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Tests y temporales
+*.test
+*.out
+coverage.txt
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Docs
+README.md
+*.md
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

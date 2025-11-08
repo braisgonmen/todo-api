@@ -2,14 +2,14 @@ package router
 
 import (
 	"net/http"
-	"todo-api/internal/database"
 	"todo-api/internal/handlers"
+	"todo-api/internal/repository/postgres"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func New(db *database.DB) http.Handler {
+func New(db *postgres.DB) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)

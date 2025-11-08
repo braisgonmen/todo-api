@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"todo-api/internal/database"
 	"todo-api/internal/model"
+	database "todo-api/internal/repository/postgres"
 )
 
 type Handler struct {
