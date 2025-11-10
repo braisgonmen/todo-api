@@ -20,6 +20,9 @@ func New(db *postgres.DB) http.Handler {
 	r.Get("/api/v1/hello", h.Hello)
 	r.Get("/api/v1/users", h.ListUsers)
 	r.Post("/api/v1/users", h.CreateUser)
+	r.Get("/api/v1/tasks", h.ListTasks)
+	r.Post("/api/v1/tasks", h.CreateTask)
+	r.Get("/api/v1/tasks/{id}", h.GetTaskByID)
 
 	return r
 }

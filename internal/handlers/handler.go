@@ -3,8 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"todo-api/internal/model"
 	database "todo-api/internal/repository/postgres"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
@@ -50,6 +53,62 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
 }
+
+func (h *Handler) ListTasks(w http.ResponseWriter, r *http.Request) {
+	tasks, err := h.db.GetAllTask(r.Context())
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(tasks)
+}
+
+func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
+
+	var req model.CreateTaskRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	task, err := h.db.CreateTask(r.Context(), req)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(task)
+}
+
+func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	task, err := h.db.GetTaskByID(r.Context(), id)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(task)
+}
+
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
