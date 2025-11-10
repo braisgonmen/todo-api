@@ -13,4 +13,5 @@ type Task struct {
 type CreateTaskRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	UserId      int    `json:"user_id"`
 }

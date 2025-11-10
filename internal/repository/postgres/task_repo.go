@@ -19,7 +19,7 @@ func (db *DB) GetAllTask(ctx context.Context) ([]model.Task, error) {
 
 	for rows.Next() {
 		var t model.Task
-		if err := rows.Scan(&t.ID, &t.Title, &t.Description, &t.CreatedAt); err != nil {
+		if err := rows.Scan(&t.ID, &t.Title, &t.Description, &t.CreatedAt, &t.UserId); err != nil {
 			return nil, err
 		}
 
@@ -33,7 +33,7 @@ func (db *DB) GetTaskByID(ctx context.Context, id int) (*model.Task, error) {
 
 	var t model.Task
 
-	err := db.conn.QueryRow("SELECT * FROM tasks WHERE id = $1", id).Scan(&t.ID, &t.Title, &t.Description, &t.CreatedAt)
+	err := db.conn.QueryRow("SELECT * FROM tasks WHERE id = $1", id).Scan(&t.ID, &t.Title, &t.Description, &t.CreatedAt, &t.UserId)
 
 	if err != nil {
 		return nil, err
@@ -46,8 +46,8 @@ func (db *DB) CreateTask(ctx context.Context, req model.CreateTaskRequest) (*mod
 
 	var task model.Task
 	err := db.conn.QueryRowContext(ctx,
-		"INSERT INTO tasks (title, description) VALUES ($1, $2) RETURNING id, title, email, description, user_id",
-		req.Title, req.Description,
+		"INSERT INTO tasks (title, description, user_id) VALUES ($1, $2, $3) RETURNING id, title, description, created_at, user_id",
+		req.Title, req.Description, req.UserId,
 	).Scan(&task.ID, &task.Title, &task.Description, &task.CreatedAt, &task.UserId)
 
 	if err != nil {

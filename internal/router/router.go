@@ -18,11 +18,17 @@ func New(db *postgres.DB) http.Handler {
 
 	r.Get("/health", h.Health)
 	r.Get("/api/v1/hello", h.Hello)
+
+	// Users routes
 	r.Get("/api/v1/users", h.ListUsers)
 	r.Post("/api/v1/users", h.CreateUser)
-	r.Get("/api/v1/tasks", h.ListTasks)
-	r.Post("/api/v1/tasks", h.CreateTask)
-	r.Get("/api/v1/tasks/{id}", h.GetTaskByID)
+
+	// Tasks routes
+	r.Route("/api/v1/tasks", func(r chi.Router) {
+		r.Post("/", h.CreateTask)
+		r.Get("/", h.ListTasks)
+		r.Get("/{id}", h.GetTaskByID)
+	})
 
 	return r
 }

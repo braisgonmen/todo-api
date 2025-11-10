@@ -23,9 +23,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     description VARCHAR(200),
     created_at TIMESTAMP DEFAULT NOW(),
     user_id INT REFERENCES users (id)
-)
+);
 
-INSERT INTO tasks (title, description) VALUES 
+INSERT INTO tasks (title, description, user_id) VALUES 
     ('Buy groceries', 'Buy milk, eggs, bread',1),
-    ('Pay bills', 'Pay electricity and water bills',2),
-ON CONFLICT (email) DO NOTHING;
+    ('Pay bills', 'Pay electricity and water bills',2);
