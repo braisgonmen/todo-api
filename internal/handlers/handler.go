@@ -4,19 +4,24 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
+	"todo-api/internal/config"
 	"todo-api/internal/model"
 	database "todo-api/internal/repository/postgres"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Handler struct {
-	db *database.DB
+	db     *database.DB
+	config *config.Config
 }
 
-func New(db *database.DB) *Handler {
+func New(db *database.DB, cfg *config.Config) *Handler {
 	return &Handler{
-		db: db,
+		db:     db,
+		config: cfg,
 	}
 }
 
@@ -109,6 +114,43 @@ func (h *Handler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(task)
 }
 
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// use HMAC (HS256) since we sign with a secret string
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": 1,
+		"email":   req.Email,
+		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(h.config.JWT.Secret))
+
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+}
+
+func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
+
+	userID := r.Context().Value("userID")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"user_id": userID,
+		"message": "this is your protected profile",
+	})
+}
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")

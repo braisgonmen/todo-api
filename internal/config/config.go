@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	JWT      JWTConfig
 }
 
 type ServerConfig struct {
@@ -24,6 +25,10 @@ type DatabaseConfig struct {
 	User     string
 	Password string
 	DBName   string
+}
+
+type JWTConfig struct {
+	Secret string
 }
 
 func Load() (*Config, error) {
@@ -42,6 +47,9 @@ func Load() (*Config, error) {
 			User:     getEnv("DB_USER", "postgres"),
 			Password: getEnv("DB_PASSWORD", "postgres"),
 			DBName:   getEnv("DB_NAME", "myapp"),
+		},
+		JWT: JWTConfig{
+			Secret: getEnv("JWT_SECRET", "my-secret-key"),
 		},
 	}, nil // devuelve nil en error
 }

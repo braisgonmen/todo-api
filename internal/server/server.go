@@ -32,7 +32,7 @@ func New(cfg *config.Config) (*Server, error) {
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
-			Handler:      router.New(db),
+			Handler:      router.New(db, cfg),
 			ReadTimeout:  cfg.Server.ReadTimeout,
 			WriteTimeout: cfg.Server.WriteTimeout,
 			IdleTimeout:  cfg.Server.IdleTimeout,
