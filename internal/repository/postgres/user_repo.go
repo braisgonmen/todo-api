@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"log"
 	"todo-api/internal/model"
 )
 
@@ -38,4 +39,31 @@ func (db *DB) CreateUser(ctx context.Context, req model.CreateUserRequest) (*mod
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (db *DB) FindByEmail(ctx context.Context, email string) (*model.User, error) {
+
+	var u model.User
+
+	log.Printf("FindByEmail(repo): querying email=%s", email)
+	err := db.conn.QueryRow("SELECT * FROM users WHERE email = $1", email).Scan(&u.ID, &u.Name, &u.Email, &u.CreatedAt)
+	if err != nil {
+		log.Printf("FindByEmail(repo): email=%s error=%v", email, err)
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+func (db *DB) FindUserByID(ctx context.Context, id int) (*model.User, error) {
+	var u model.User
+
+	log.Printf("FindUserByID(repo): querying id=%d", id)
+	err := db.conn.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Email, &u.CreatedAt)
+	if err != nil {
+		log.Printf("FindUserByID(repo): id=%d error=%v", id, err)
+		return nil, err
+	}
+
+	return &u, nil
 }

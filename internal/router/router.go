@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 	"todo-api/internal/config"
 	"todo-api/internal/handlers"
@@ -28,6 +29,10 @@ func New(db *postgres.DB, cfg *config.Config) http.Handler {
 		r.Get("/api/v1/users", h.ListUsers)
 		r.Post("/api/v1/users", h.CreateUser)
 		r.Get("/api/v1/me", h.GetProfile)
+		r.Get("/api/v1/users/{id}", h.FindUserByID)
+		log.Printf("registered route: GET /api/v1/users/{id}")
+		r.Get("/api/v1/users/{email}", h.FindUserByEmail)
+		log.Printf("registered route: GET /api/v1/users/{email}")
 	})
 
 	// Tasks routes
@@ -35,6 +40,8 @@ func New(db *postgres.DB, cfg *config.Config) http.Handler {
 		r.Post("/", h.CreateTask)
 		r.Get("/", h.ListTasks)
 		r.Get("/{id}", h.GetTaskByID)
+		r.Put("/{id}", h.UpdateTask)
+		r.Delete("/{id}", h.DeleteTask)
 	})
 
 	return r

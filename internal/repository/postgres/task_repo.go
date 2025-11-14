@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"todo-api/internal/model"
 )
 
@@ -29,7 +30,7 @@ func (db *DB) GetAllTask(ctx context.Context) ([]model.Task, error) {
 	return tasks, nil
 }
 
-func (db *DB) GetTaskByID(ctx context.Context, id int) (*model.Task, error) {
+func (db *DB) FindTaskByID(ctx context.Context, id int) (*model.Task, error) {
 
 	var t model.Task
 
@@ -54,4 +55,43 @@ func (db *DB) CreateTask(ctx context.Context, req model.CreateTaskRequest) (*mod
 		return nil, err
 	}
 	return &task, nil
+}
+
+func (db *DB) UpdateTask(ctx context.Context, id int, req model.CreateTaskRequest) (*model.Task, error) {
+
+	var updatedTask model.Task
+
+	err := db.conn.QueryRowContext(ctx,
+		"UPDATE tasks SET title = $1, description = $2, user_id = $3 WHERE id = $4 RETURNING id, title, description, created_at, user_id",
+		req.Title, req.Description, req.UserId, id,
+	).Scan(&updatedTask.ID, &updatedTask.Title, &updatedTask.Description, &updatedTask.CreatedAt, &updatedTask.UserId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedTask, nil
+}
+
+func (db *DB) DeleteTask(ctx context.Context, id int) error {
+
+	result, err := db.conn.ExecContext(ctx,
+		"DELETE FROM tasks WHERE id = $1",
+		id,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
